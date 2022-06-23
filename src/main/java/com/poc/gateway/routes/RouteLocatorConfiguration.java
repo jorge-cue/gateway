@@ -18,6 +18,11 @@ public class RouteLocatorConfiguration {
                         .filters(f -> f.addRequestHeader("Hello", "World"))
                         .uri("http://httpbin.org:80")
                 )
+                .route("circuitbreaker", p -> p
+                        .host("*.circuitbreaker.com")
+                        .filters(f -> f.circuitBreaker(config -> config.setName("myCommand")))
+                        .uri("http://httpbin.org:80")
+                )
                 .build();
     }
 }
