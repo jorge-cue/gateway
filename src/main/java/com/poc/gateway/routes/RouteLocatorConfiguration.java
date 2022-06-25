@@ -16,8 +16,6 @@ public class RouteLocatorConfiguration {
     public RouteLocator routeLocator(RouteLocatorBuilder builder) {
         return builder.routes()
                 .route("get", p -> p
-                        .method("GET")
-                        .and()
                         .path("/get")
                         .filters(f -> f.addRequestHeader("Hello", "World"))
                         .uri(properties.getDownStreamURI())

@@ -4,6 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConfigurationProperties(prefix = "gateway")
 public class RouteLocatorProperties {
 
     private String downStreamURI = "http://httpbin.org:80";

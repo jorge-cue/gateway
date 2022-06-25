@@ -1,0 +1,9 @@
+{
+  "request": {
+    "urlPath": "/get"
+  },
+  "response":{
+    "status": 200,
+    "body": "{\"headers\":{\"Hello\":\"World\"}}"
+  }
+}

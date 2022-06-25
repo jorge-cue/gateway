@@ -1,0 +1,10 @@
+{
+  "request": {
+    "urlPath": "/delay/3"
+  },
+  "response": {
+    "status": 200,
+    "body": "no fallback",
+    "fixedDelayMilliseconds": 3000
+  }
+}
