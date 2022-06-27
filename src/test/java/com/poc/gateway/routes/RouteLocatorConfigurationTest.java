@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "gateway.downStreamURI=http://localhost:${wiremock.server.port}")
 @WireMockTest
-@AutoConfigureWireMock(port = 0, stubs = {"classpath:/wiremock/mappings"})
+@AutoConfigureWireMock(port = 0, stubs = {"classpath:/wiremock/RouteLocatorConfigurationTest/mappings"})
 class RouteLocatorConfigurationTest {
 
     public static final String FALLBACK = "fallback";
