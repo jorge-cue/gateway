@@ -1,7 +1,0 @@
-logging:
-  level:
-    org:
-      springframework:
-        cloud:
-          gateway:
-            route: DEBUG

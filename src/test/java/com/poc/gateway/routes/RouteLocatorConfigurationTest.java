@@ -1,7 +1,7 @@
 package com.poc.gateway.routes;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import org.junit.jupiter.api.BeforeEach;
+import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -9,10 +9,6 @@ import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "gateway.downStreamURI=http://localhost:${wiremock.server.port}")
@@ -20,8 +16,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureWireMock(port = 0, stubs = {"classpath:/wiremock/mappings"})
 class RouteLocatorConfigurationTest {
 
+    public static final String FALLBACK = "fallback";
     private static final String GET = "/get";
     private static final String DELAY_3 = "/delay/3";
+    public static final String TEST_CIRCUITBREAKER_COM = "test.circuitbreaker.com";
     @Autowired
     private WebTestClient webClient;
 
@@ -40,9 +38,9 @@ class RouteLocatorConfigurationTest {
         webClient.get()
                 .uri(DELAY_3)
                 .accept(MediaType.APPLICATION_JSON)
-                .header("Host", "test.circuitbreaker.com")
+                .header(HttpHeaders.HOST, TEST_CIRCUITBREAKER_COM)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody().consumeWith(result -> assertThat(new String(result.getResponseBody())).isEqualTo("fallback"));
+                .expectBody().consumeWith(result -> assertThat(new String(result.getResponseBody())).isEqualTo(FALLBACK));
     }
 }
