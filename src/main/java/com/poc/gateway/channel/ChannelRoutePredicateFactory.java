@@ -17,21 +17,25 @@ public class ChannelRoutePredicateFactory extends AbstractRoutePredicateFactory<
     @Override
     public Predicate<ServerWebExchange> apply(Config config) {
         return exchange -> {
-            final var remoteAddress = exchange.getRequest().getRemoteAddress().getHostString();
-            return config.networkSpecs.stream().map(IpAddressMatcher::new).anyMatch(matcher -> matcher.matches(remoteAddress));
+            try {
+                final var remoteAddress = exchange.getRequest().getRemoteAddress().getHostString();
+                return config.networkSpecs.stream().map(IpAddressMatcher::new).anyMatch(matcher -> matcher.matches(remoteAddress));
+            } catch (Exception x) {
+                return false;
+            }
         };
     }
 
     @Data(staticConstructor = "of")
     public static class Config {
         /**
-         * List of subnets where a Channel can come from, for example:
+         * List of subnets where a request can come from, for example:
          *
          * <table>
          *     <theader>
          *         <tr>
          *          <th>Channel name</th>
-         *          <th>Subnets</th>
+         *          <th>Sub networks</th>
          *          <th>Examples and Notes</th>
          *         <tr></tr>
          *     </theader>

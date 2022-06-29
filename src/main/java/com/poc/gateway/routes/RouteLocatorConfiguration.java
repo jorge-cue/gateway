@@ -50,17 +50,17 @@ public class RouteLocatorConfiguration {
                 )
                 // Routes by channel, depending on where it comes from
                 .route("web-channel", p -> p
-                                .predicate(t -> CHANNEL_ROUTE_PREDICATE_FACTORY.apply(WEB_CHANNEL_CONFIG).test(t))
+                                .predicate(CHANNEL_ROUTE_PREDICATE_FACTORY.apply(WEB_CHANNEL_CONFIG))
                                 .filters(f -> f.addRequestHeader("X-Channel", "WEB"))
                                 .uri(routeLocatorProperties.getDownStreamURI())
                 )
                 .route("mobile-channel", p -> p
-                                .predicate(t -> CHANNEL_ROUTE_PREDICATE_FACTORY.apply(MOBILE_CHANNEL_CONFIG).test(t))
+                                .predicate(CHANNEL_ROUTE_PREDICATE_FACTORY.apply(MOBILE_CHANNEL_CONFIG))
                                 .filters(f -> f.addRequestHeader("X-Channel", "MOBILE"))
                                 .uri(routeLocatorProperties.getDownStreamURI())
                 )
                 .route("open-banking-channel", p -> p
-                                .predicate(t -> CHANNEL_ROUTE_PREDICATE_FACTORY.apply(OPEN_BANKING_CHANNEL_CONFIG).test(t))
+                                .predicate(CHANNEL_ROUTE_PREDICATE_FACTORY.apply(OPEN_BANKING_CHANNEL_CONFIG))
                                 .filters(f -> f.addRequestHeader("X-Channel", "OPEN-BANKING"))
                                 .uri(routeLocatorProperties.getDownStreamURI())
                 )

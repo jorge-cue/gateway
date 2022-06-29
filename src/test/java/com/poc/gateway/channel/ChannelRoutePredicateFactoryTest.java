@@ -26,22 +26,23 @@ class ChannelRoutePredicateFactoryTest {
         var webExchange = MockServerWebExchange.builder(
                         MockServerHttpRequest.get("/get").remoteAddress(new InetSocketAddress(InetAddress.getByName(remoteAddress), 4567)).build())
                 .build();
-
         var actualResult = factory.apply(config).test(webExchange);
-
         assertThat(actualResult).isEqualTo(expectedResult);
     }
 
     static Stream<Arguments> channelRoutePredicateCase() {
-        final List<String> SUB_NETWORKS = List.of("10.0.0.0/8");
+        final var SUB_NETWORKS_1 = List.of("10.0.0.0/8");
+        final var SUB_NETWORKS_2 = List.of("10.0.0.0/12");
+        final var SUB_NETWORKS_3 = List.of("10.0.0.0/8", "127.0.0.1");
         return Stream.of(
-                Arguments.of(SUB_NETWORKS, "10.0.0.1", true),
-                Arguments.of(SUB_NETWORKS, "10.0.1.1", false),
-                Arguments.of(List.of("10.0.0.0/12"), "10.0.0.1", true),
-                Arguments.of(List.of("10.0.0.0/12"), "10.0.15.254", true),
-                Arguments.of(List.of("10.0.0.0/12"), "10.0.16.255", false),
-                Arguments.of(List.of("10.0.0.0/12"), "10.0.255.1", false),
-                Arguments.of(List.of("10.0.0.0/8", "127.0.0.1"), "localhost", true) // For development!!!
+                Arguments.of(SUB_NETWORKS_1, "10.0.0.1", true),
+                Arguments.of(SUB_NETWORKS_1, "10.0.0.255", true),
+                Arguments.of(SUB_NETWORKS_1, "10.0.1.1", false),
+                Arguments.of(SUB_NETWORKS_2, "10.0.0.1", true),
+                Arguments.of(SUB_NETWORKS_2, "10.0.15.254", true),
+                Arguments.of(SUB_NETWORKS_2, "10.0.16.255", false),
+                Arguments.of(SUB_NETWORKS_2, "10.0.255.255", false),
+                Arguments.of(SUB_NETWORKS_3, "localhost", true)
         );
     }
 
