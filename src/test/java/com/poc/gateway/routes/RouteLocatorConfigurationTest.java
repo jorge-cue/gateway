@@ -11,7 +11,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "gateway.downStreamURI=http://localhost:${wiremock.server.port}")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "routes.downStreamURI=http://localhost:${wiremock.server.port}")
 @WireMockTest
 @AutoConfigureWireMock(port = 0, stubs = {"classpath:/wiremock/RouteLocatorConfigurationTest/mappings"})
 class RouteLocatorConfigurationTest {

@@ -1,0 +1,28 @@
+server:
+  port: 9000
+  netty:
+    connection-timeout: 2s
+    idle-timeout: 15s
+  shutdown: graceful
+
+spring:
+  application:
+    name: edge-service
+  cloud:
+    gateway:
+      actuator:
+        verbose:
+          enabled: true
+  lifecycle:
+    timeout-per-shutdown-phase: 15s
+
+routes:
+  downStreamURI: http://httpbin:80
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - gateway
