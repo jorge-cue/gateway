@@ -32,10 +32,10 @@ public class IpAddressMatcher {
         if (numMaskedBits < 0) {
             return remoteAddress.equals(requiredAddress);
         }
-        var remoteAddressBytes = remoteAddress.getAddress();
-        var requiredAddressBytes = requiredAddress.getAddress();
-        var nonMaskedBytes = remoteAddressBytes.length - numMaskedBits / 8 - (numMaskedBits % 8 != 0 ? 1 : 0);
-        var maskForFinalByte = (byte) (0xFF00 >>> (numMaskedBits & 0x07));
+        final var remoteAddressBytes = remoteAddress.getAddress();
+        final var requiredAddressBytes = requiredAddress.getAddress();
+        final var nonMaskedBytes = remoteAddressBytes.length - numMaskedBits / 8 - (numMaskedBits % 8 != 0 ? 1 : 0);
+        final var maskForFinalByte = (byte) (0xFF00 >>> (numMaskedBits & 0x07));
         for (int i = 0; i < nonMaskedBytes; i++) {
             if (remoteAddressBytes[i] != requiredAddressBytes[i])
                 return false;
