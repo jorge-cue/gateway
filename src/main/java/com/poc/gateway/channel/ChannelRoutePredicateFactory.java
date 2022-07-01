@@ -2,6 +2,8 @@ package com.poc.gateway.channel;
 
 import lombok.Builder;
 import lombok.Data;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.handler.predicate.AbstractRoutePredicateFactory;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -10,17 +12,31 @@ import java.util.function.Predicate;
 
 public class ChannelRoutePredicateFactory extends AbstractRoutePredicateFactory<ChannelRoutePredicateFactory.Config> {
 
+    private static final Logger log = LoggerFactory.getLogger("com.poc.gateway.channel.ChannelRoutePredicate");
+
+    public static final String X_ORIGIN_CHANNEL = "X-Origin-Channel";
+
     public ChannelRoutePredicateFactory(Class<Config> configClass) {
         super(configClass);
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public Predicate<ServerWebExchange> apply(Config config) {
         return exchange -> {
             try {
-                final var remoteAddress = exchange.getRequest().getRemoteAddress().getHostString();
+                var request = exchange.getRequest();
+                var headers = request.getHeaders();
+                log.info("Testing if exchange is for channel {} using request from {} and headers {}", config.id, exchange.getRequest().getRemoteAddress(), headers);
+                if (headers.containsKey(X_ORIGIN_CHANNEL)) {
+                    log.info("Testing Header whether it is assigned to Channel {}.", config.id);
+                    return headers.get(X_ORIGIN_CHANNEL).contains(config.id);
+                }
+                final var remoteAddress = request.getRemoteAddress().getHostString();
+                log.info("Testing if remoteAddress {} belongs to one of {} for channel {}", remoteAddress, config.networkSpecs, config.id);
                 return config.networkSpecs.stream().map(IpAddressMatcher::new).anyMatch(matcher -> matcher.matches(remoteAddress));
             } catch (Exception x) {
+                log.error("Exception testing for channel {}", config.id, x);
                 return false;
             }
         };
@@ -28,6 +44,7 @@ public class ChannelRoutePredicateFactory extends AbstractRoutePredicateFactory<
 
     @Data(staticConstructor = "of")
     public static class Config {
+        private final String id;
         /**
          * List of subnets where a request can come from, for example:
          *

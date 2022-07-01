@@ -3,6 +3,7 @@ package com.poc.gateway.routes;
 import com.poc.gateway.channel.ChannelRoutePredicateFactory;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.timelimiter.TimeLimiterConfig;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cloud.circuitbreaker.resilience4j.ReactiveResilience4JCircuitBreakerFactory;
 import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JConfigBuilder;
 import org.springframework.cloud.client.circuitbreaker.Customizer;
@@ -10,6 +11,7 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 
 import java.time.Duration;
 import java.util.List;
@@ -17,27 +19,66 @@ import java.util.List;
 @Configuration
 public class RouteLocatorConfiguration {
 
+    public static final String X_CHANNEL = "X-Channel";
     private final RouteLocatorProperties routeLocatorProperties;
+    private final ChannelRoutePredicateFactory.Config webChannelRoutePredicateConfig;
+    private final ChannelRoutePredicateFactory.Config mobileChannelRoutePredicateConfig;
+    private final ChannelRoutePredicateFactory.Config openShiftChannelRoutePredicateConfig;
+    private final ChannelRoutePredicateFactory channelRoutePredicateFactory;
 
-    public RouteLocatorConfiguration(RouteLocatorProperties routeLocatorProperties) {
+    public RouteLocatorConfiguration(RouteLocatorProperties routeLocatorProperties,
+                                  @Qualifier("webChannelRoutePredicateConfig")  ChannelRoutePredicateFactory.Config webChannelRoutePredicateConfig,
+                                  @Qualifier("mobileChannelRoutePredicateConfig")  ChannelRoutePredicateFactory.Config mobileChannelRoutePredicateConfig,
+                                  @Qualifier("openShiftChannelRoutePredicateConfig")  ChannelRoutePredicateFactory.Config openShiftChannelRoutePredicateConfig,
+                                     ChannelRoutePredicateFactory channelRoutePredicateFactory
+
+    ) {
         this.routeLocatorProperties = routeLocatorProperties;
+        this.webChannelRoutePredicateConfig = webChannelRoutePredicateConfig;
+        this.mobileChannelRoutePredicateConfig = mobileChannelRoutePredicateConfig;
+        this.openShiftChannelRoutePredicateConfig = openShiftChannelRoutePredicateConfig;
+        this.channelRoutePredicateFactory = channelRoutePredicateFactory;
     }
-
-    private static final ChannelRoutePredicateFactory.Config WEB_CHANNEL_CONFIG = ChannelRoutePredicateFactory.Config.of(List.of("10.1.0.0/8"));
-    private static final ChannelRoutePredicateFactory.Config MOBILE_CHANNEL_CONFIG = ChannelRoutePredicateFactory.Config.of(List.of("10.1.1.0/8"));
-    private static final ChannelRoutePredicateFactory.Config OPEN_BANKING_CHANNEL_CONFIG = ChannelRoutePredicateFactory.Config.of(List.of("10.1.2.0/8"));
-
-    private static final ChannelRoutePredicateFactory CHANNEL_ROUTE_PREDICATE_FACTORY = new ChannelRoutePredicateFactory(ChannelRoutePredicateFactory.Config.class);
 
     @Bean
     public RouteLocator routeLocator(RouteLocatorBuilder builder) {
         return builder.routes()
+                // Routes by channel, depending on where it comes from
+                .route("web-channel", p -> p
+                        .predicate(channelRoutePredicateFactory.apply(webChannelRoutePredicateConfig))
+                        .filters(f -> f
+                                .addRequestHeader(X_CHANNEL, webChannelRoutePredicateConfig.getId())
+                                .removeRequestHeader(ChannelRoutePredicateFactory.X_ORIGIN_CHANNEL)
+                                .removeRequestHeader("Cookie"))
+                        .uri(routeLocatorProperties.getDownStreamURI())
+                )
+                .route("mobile-channel", p -> p
+                        .predicate(channelRoutePredicateFactory.apply(mobileChannelRoutePredicateConfig))
+                        .filters(f -> f
+                                .addRequestHeader(X_CHANNEL, mobileChannelRoutePredicateConfig.getId())
+                                .removeRequestHeader(ChannelRoutePredicateFactory.X_ORIGIN_CHANNEL)
+                                .removeRequestHeader("Cookie"))
+                        .uri(routeLocatorProperties.getDownStreamURI())
+                )
+                .route("open-banking-channel", p -> p
+                        .predicate(channelRoutePredicateFactory.apply(openShiftChannelRoutePredicateConfig))
+                        .filters(f -> f
+                                .addRequestHeader(X_CHANNEL, openShiftChannelRoutePredicateConfig.getId())
+                                .removeRequestHeader(ChannelRoutePredicateFactory.X_ORIGIN_CHANNEL)
+                                .removeRequestHeader("Cookie"))
+                        .uri(routeLocatorProperties.getDownStreamURI())
+                )
+                // Routes to test minimum case and circuit breaker
                 .route("get", p -> p
+                        .method(HttpMethod.GET)
+                        .and()
                         .path("/get")
                         .filters(f -> f.addRequestHeader("Hello", "World"))
                         .uri(routeLocatorProperties.getDownStreamURI())
                 )
                 .route("circuitBreaker", p -> p
+                        .method(HttpMethod.GET)
+                        .and()
                         .host("*.circuitbreaker.com")
                         .filters(f -> {
                             f.circuitBreaker(config -> config
@@ -47,22 +88,6 @@ public class RouteLocatorConfiguration {
                             return f;
                         })
                         .uri(routeLocatorProperties.getDownStreamURI())
-                )
-                // Routes by channel, depending on where it comes from
-                .route("web-channel", p -> p
-                                .predicate(CHANNEL_ROUTE_PREDICATE_FACTORY.apply(WEB_CHANNEL_CONFIG))
-                                .filters(f -> f.addRequestHeader("X-Channel", "WEB"))
-                                .uri(routeLocatorProperties.getDownStreamURI())
-                )
-                .route("mobile-channel", p -> p
-                                .predicate(CHANNEL_ROUTE_PREDICATE_FACTORY.apply(MOBILE_CHANNEL_CONFIG))
-                                .filters(f -> f.addRequestHeader("X-Channel", "MOBILE"))
-                                .uri(routeLocatorProperties.getDownStreamURI())
-                )
-                .route("open-banking-channel", p -> p
-                                .predicate(CHANNEL_ROUTE_PREDICATE_FACTORY.apply(OPEN_BANKING_CHANNEL_CONFIG))
-                                .filters(f -> f.addRequestHeader("X-Channel", "OPEN-BANKING"))
-                                .uri(routeLocatorProperties.getDownStreamURI())
                 )
                 .build();
     }

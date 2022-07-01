@@ -1,0 +1,14 @@
+{
+  "request": {
+    "headers": {
+      "X-Channel": {
+        "matches": "WEB|MOBILE|OPEN_BANKING"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": "{'headers':{'X-Channel':'{{request.headers.X-Channel}}'}",
+    "transformers": ["response-template"]
+  }
+}

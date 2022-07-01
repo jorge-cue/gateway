@@ -22,7 +22,7 @@ class ChannelRoutePredicateFactoryTest {
     @ParameterizedTest
     @MethodSource("channelRoutePredicateCase")
     void channelRoutePredicateCase(List<String> validNetworks, String remoteAddress, boolean expectedResult) throws UnknownHostException {
-        var config = ChannelRoutePredicateFactory.Config.of(validNetworks);
+        var config = ChannelRoutePredicateFactory.Config.of("TEST", validNetworks);
         var webExchange = MockServerWebExchange.builder(
                         MockServerHttpRequest.get("/get").remoteAddress(new InetSocketAddress(InetAddress.getByName(remoteAddress), 4567)).build())
                 .build();

@@ -17,7 +17,7 @@ spring:
     timeout-per-shutdown-phase: 15s
 
 routes:
-  downStreamURI: http://httpbin:80
+  downStreamURI: http://httpbin.org:80
 
 management:
   endpoints:

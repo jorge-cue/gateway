@@ -1,9 +1,14 @@
 package com.poc.gateway.channel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class IpAddressMatcher {
+
+    private static final Logger log = LoggerFactory.getLogger(IpAddressMatcher.class);
     private final int numMaskedBits;
     private final InetAddress requiredAddress;
 
@@ -12,7 +17,7 @@ public class IpAddressMatcher {
      * 192.168.1.0/24 or 202.24.0.0/14 )
      */
     public IpAddressMatcher(String ipAddress) {
-
+        log.info("Building ipAddressMatcher for network spec {}", ipAddress);
         if (ipAddress.indexOf('/') > 0) {
             var addressAndMask = ipAddress.split("/");
             ipAddress = addressAndMask[0];
@@ -25,6 +30,7 @@ public class IpAddressMatcher {
     }
 
     public boolean matches(String address) {
+        log.info("Matching address {} against network {} using mask {}", address, requiredAddress, numMaskedBits);
         InetAddress remoteAddress = parseAddress(address);
         if (!requiredAddress.getClass().equals(remoteAddress.getClass())) {
             return false;
