@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +35,7 @@ class RouteLocatorConfigurationTest {
 
     @Test
     void getRouteInjectsHelloWorldHeader() {
-        webClient.get().uri(GET)
+        webClient.get().uri(GET).header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody().jsonPath("$.headers.Hello").isEqualTo("World");
@@ -42,7 +43,7 @@ class RouteLocatorConfigurationTest {
 
     @Test
     void circuitBreakerWorksAsExpected() {
-        webClient.get().uri(DELAY_3)
+        webClient.get().uri(DELAY_3).header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
                 .header(HttpHeaders.HOST, TEST_CIRCUITBREAKER_COM)
                 .exchange()
                 .expectStatus().isOk()
@@ -52,6 +53,7 @@ class RouteLocatorConfigurationTest {
     @Test
     void webChannel() {
         webClient.get().uri("/")
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .header(ChannelRoutePredicateFactory.X_ORIGIN_CHANNEL, ChannelRoutePredicateConfiguration.Channel.WEB.name())
                 .exchange()
                 .expectStatus().isOk()
@@ -63,6 +65,7 @@ class RouteLocatorConfigurationTest {
     @Test
     void mobileChannel() {
         webClient.get().uri("/")
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .header(ChannelRoutePredicateFactory.X_ORIGIN_CHANNEL, ChannelRoutePredicateConfiguration.Channel.MOBILE.name())
                 .exchange()
                 .expectStatus().isOk()
@@ -74,6 +77,7 @@ class RouteLocatorConfigurationTest {
     @Test
     void openBankingChannel() {
         webClient.get().uri("/")
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .header(ChannelRoutePredicateFactory.X_ORIGIN_CHANNEL, ChannelRoutePredicateConfiguration.Channel.OPEN_BANKING.name())
                 .exchange()
                 .expectStatus().isOk()

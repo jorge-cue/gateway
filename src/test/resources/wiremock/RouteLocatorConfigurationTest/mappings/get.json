@@ -2,8 +2,12 @@
   "request": {
     "urlPath": "/get"
   },
-  "response":{
+  "response": {
     "status": 200,
-    "body": "{\"headers\":{\"Hello\":\"World\"}}"
+    "jsonBody": {
+      "headers": {
+        "Hello": "World"
+      }
+    }
   }
 }

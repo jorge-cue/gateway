@@ -8,7 +8,13 @@
   },
   "response": {
     "status": 200,
-    "body": "{'headers':{'X-Channel':'{{request.headers.X-Channel}}'}",
-    "transformers": ["response-template"]
+    "jsonBody": {
+      "headers": {
+        "X-Channel": "{{request.headers.X-Channel}}"
+      }
+    },
+    "transformers": [
+      "response-template"
+    ]
   }
 }
