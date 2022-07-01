@@ -1,6 +1,11 @@
 {
   "request": {
-    "urlPath": "/get"
+    "urlPath": "/get",
+    "headers": {
+      "Hello": {
+        "equalTo": "World"
+      }
+    }
   },
   "response": {
     "status": 200,

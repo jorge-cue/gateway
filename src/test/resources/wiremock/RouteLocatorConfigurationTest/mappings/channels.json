@@ -2,7 +2,7 @@
   "request": {
     "headers": {
       "X-Channel": {
-        "matches": "WEB|MOBILE|OPEN_BANKING"
+        "matches": "\\w+"
       }
     }
   },

@@ -51,7 +51,7 @@ class RouteLocatorConfigurationTest {
     }
 
     @Test
-    void webChannel() {
+    void webChannelIsIdentified() {
         webClient.get().uri("/")
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .header(ChannelRoutePredicateFactory.X_ORIGIN_CHANNEL, ChannelRoutePredicateConfiguration.Channel.WEB.name())
@@ -63,7 +63,7 @@ class RouteLocatorConfigurationTest {
     }
 
     @Test
-    void mobileChannel() {
+    void mobileChannelIsIdentified() {
         webClient.get().uri("/")
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .header(ChannelRoutePredicateFactory.X_ORIGIN_CHANNEL, ChannelRoutePredicateConfiguration.Channel.MOBILE.name())
@@ -75,7 +75,7 @@ class RouteLocatorConfigurationTest {
     }
 
     @Test
-    void openBankingChannel() {
+    void openBankingChannelIsIdentified() {
         webClient.get().uri("/")
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .header(ChannelRoutePredicateFactory.X_ORIGIN_CHANNEL, ChannelRoutePredicateConfiguration.Channel.OPEN_BANKING.name())
@@ -84,6 +84,15 @@ class RouteLocatorConfigurationTest {
                 .expectBody()
                 .jsonPath("$.headers.X-Channel").isEqualTo(ChannelRoutePredicateConfiguration.Channel.OPEN_BANKING.name())
                 .jsonPath("$.headers.X-Origin-Channel").doesNotExist();
+    }
+
+    @Test
+    void unknownChannelIsRejected() {
+        webClient.get().uri("/")
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                .header(ChannelRoutePredicateFactory.X_ORIGIN_CHANNEL, "UNKNOWN")
+                .exchange()
+                .expectStatus().isNotFound();
     }
 
 }
